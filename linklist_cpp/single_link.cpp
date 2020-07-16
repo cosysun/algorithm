@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <random>
+#include <stack>
 
 struct ListNode {
     int value;
@@ -23,6 +24,42 @@ ListNode* GenRandomSingleList(int num)
         }
         pPrev = pNode;
     }
+
+    return pHead;
+}
+
+ListNode* GenLoopSingleList(int num, int point) 
+{
+    if (num <=0 || point >= num - 1 || point < 0)
+    {
+        return nullptr;
+    }
+    
+    ListNode* pHead = nullptr;
+    ListNode* pPrev = nullptr;
+    ListNode* pPoint = nullptr;
+    for (int i = 0; i < num; i++)
+    {
+        ListNode* pNode = new ListNode();
+        pNode->value = i;
+        if (i == 0)
+        {
+            pHead = pNode;
+        } else {
+            pPrev->pNext = pNode;
+        }
+        if (i == point)
+        {
+            pPoint = pNode;
+        }
+        if (i == (num - 1))
+        {
+            pNode->pNext = pPoint;
+        }
+        
+        pPrev = pNode;
+    }
+
 
     return pHead;
 }
@@ -103,6 +140,84 @@ void PrintListNode(ListNode* pHead) {
     std::cout << res << std::endl;
 }
 
+void PrintReverseListNode(ListNode* pHead) {
+    if (pHead == NULL)
+    {
+        return;
+    }
+    std::stack<ListNode*> nodeStack;
+    ListNode* pCur = pHead;
+    while (pCur != NULL)
+    {
+        nodeStack.push(pCur);
+        pCur = pCur->pNext;
+    }
+
+    std::string res = "";
+    int len = nodeStack.size();
+    int i = 0;
+    while (!nodeStack.empty())
+    {
+        if (i == len - 1)
+        {
+            res += std::to_string(nodeStack.top()->value);
+        } else {
+            res += std::to_string(nodeStack.top()->value) + "->";
+        }
+        
+        nodeStack.pop();
+        i++;
+    }
+    std::cout << res << std::endl;
+}
+
+int GetListLen(ListNode* pHead) {
+    if (pHead == NULL)
+    {
+        return 0;
+    }
+    ListNode* pCur = pHead;
+    int len = 0;
+    while (pCur != NULL)
+    {
+        ++len;
+        pCur = pCur->pNext;
+    }
+    return len;
+}
+
+ListNode* FindFirstCommonNode(ListNode* pHead1, ListNode* pHead2) {
+    if (pHead1 == NULL || pHead2 == NULL)
+    {
+        return NULL;
+    }
+    int len1 = GetListLen(pHead1);
+    int len2 = GetListLen(pHead2);
+    ListNode* pLong = pHead1;
+    ListNode* pShort = pHead2;
+    int step_diff = len1 - len2;
+    if (len2 > len1)
+    {
+        pLong = pHead2;
+        pShort = pHead1;
+        step_diff = len2- len1;
+    }
+    for (int i = 0; i < step_diff; i++)
+    {
+        pLong = pLong->pNext;
+    }
+
+    while (pShort != NULL && pLong != NULL)
+    {
+        if(pShort == pLong) {
+            return pLong;
+        }
+        pLong = pLong->pNext;
+        pShort = pShort->pNext;
+    }
+    return nullptr; 
+}
+
 ListNode* MergeList(ListNode* pHead1, ListNode*pHead2) {
     if (pHead1 == NULL || pHead2 == NULL)
     {
@@ -157,6 +272,93 @@ ListNode* MergeList2(ListNode* pHead1, ListNode*pHead2) {
     return nullptr;
 }
 
+bool HasListLoop(ListNode* pHead) {
+    if (pHead == NULL)
+    {
+        return false;
+    }
+    ListNode* pQuick = pHead;
+    ListNode* pSlow = pHead;
+    while (pSlow != nullptr && pQuick != nullptr && pQuick->pNext != nullptr)
+    {
+        pSlow = pSlow->pNext;
+        pQuick = pQuick->pNext->pNext; 
+        if (pQuick == pSlow)
+        {
+           return true; 
+        }
+    }
+    return false;
+} 
+
+ListNode* InsertTail(ListNode* pHead, int value) {
+    if (pHead == NULL)
+    {
+        return nullptr;
+    }
+
+    ListNode* pCur = pHead; 
+    while (pCur->pNext != NULL)
+    {
+        pCur = pCur->pNext;
+    }
+    ListNode* pNode = new ListNode();
+    pNode->value = value;
+    pNode->pNext = nullptr;
+    pCur->pNext = pNode;
+    return  pHead;
+}
+    
+ListNode* Insert(ListNode* pHead, int value, int insertValue) {
+    if (pHead == NULL)
+    {
+        return nullptr;
+    }
+    ListNode* pCur = pHead; 
+    ListNode* pInsertNode = new ListNode();
+    pInsertNode->value = insertValue;
+    
+    while (pCur != NULL)
+    {
+        if(pCur->value == value) {
+            ListNode* pTmp = pCur->pNext;
+            pCur->pNext = pInsertNode;
+            pInsertNode->pNext = pTmp;
+        }
+        pCur = pCur->pNext;
+    }
+    return  pHead;
+}
+
+ListNode* Delete(ListNode* pHead, int value) {
+    if (pHead == NULL)
+    {
+        return nullptr;
+    }
+    ListNode* pCur = pHead; 
+    ListNode* pPrev = nullptr;
+    while (pCur != NULL)
+    {
+        if(pCur->value == value) {
+            if (pPrev == nullptr)
+            {
+                pHead = pCur->pNext;
+            } else {
+                pPrev->pNext = pCur->pNext;
+            }
+            ListNode* pTmp = pCur;
+            pCur = pCur->pNext;
+
+            //释放
+            delete pTmp;
+        }  else {
+            pPrev = pCur;
+            pCur = pCur->pNext;
+        }
+    }
+    return  pHead;
+}
+
 int main() {
     // ListNode* pNode = GenRandomSingleList(10);
     // PrintListNode(pNode);
@@ -173,4 +375,22 @@ int main() {
 
     ListNode* mergeNode = MergeList2(pNode1, pNode2);
     PrintListNode(mergeNode);
+
+    ListNode* pLoopNode = GenLoopSingleList(10, 4);
+    ListNode* pNode = GenRandomSingleList(10);
+    if (HasListLoop(pNode)) {
+        std::cout << "has loop" << std::endl;
+    } else {
+        std::cout << "no loop" << std::endl;
+    }
+    
+    InsertTail(pNode, 11);
+    PrintListNode(pNode);
+    Insert(pNode, 1, 11);
+    PrintListNode(pNode);
+
+    ListNode* t = Delete(pNode, 11);
+     PrintListNode(t);
+    
+    PrintReverseListNode(t);
 }
