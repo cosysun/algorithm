@@ -359,6 +359,46 @@ ListNode* Delete(ListNode* pHead, int value) {
     return  pHead;
 }
 
+ListNode* ReverseChange(ListNode* pHead, int k) {
+    if (pHead == NULL || k <= 1)
+    {
+        return pHead;
+    }
+    int len =0;
+    ListNode* pNode = pHead;
+    while (pNode != NULL)
+    {
+        len++;
+        pNode = pNode->pNext;
+    }
+    int n = len / k;
+    int skipNum = len % k;
+    pNode = pHead;
+    for (int i = 0; i < skipNum - 2; i++)
+    {
+        pNode = pNode->pNext;
+    }
+    ListNode* pTop = pNode;
+    ListNode* pTail = pNode;
+    int step = k;
+    while (pTail != NULL)
+    {
+        if ((--step) != 0)
+        {
+            ListNode *pTmp = pTop->pNext;
+            ListNode *pTmp1 = pTail->pNext;
+            pTop->pNext = pTail;
+            pTail->pNext = pTmp;
+            pTail = pTmp1;
+        } else {
+            step = k;
+            pTop = pTail;
+        }
+    }
+    
+    
+}
+
 int main() {
     // ListNode* pNode = GenRandomSingleList(10);
     // PrintListNode(pNode);
